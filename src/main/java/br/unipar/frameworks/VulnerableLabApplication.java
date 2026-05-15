@@ -10,6 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.math.BigDecimal;
 
@@ -23,11 +24,14 @@ public class VulnerableLabApplication {
     @Bean
     CommandLineRunner seedData(UserRepository userRepository,
                                ProductRepository productRepository,
-                               CommentRepository commentRepository) {
+                               CommentRepository commentRepository,
+                               BCryptPasswordEncoder passwordEncoder) {
         return args -> {
-            User admin = new User(null, "Admin", "admin@lab.local", "admin123", "ADMIN");
-            User student = new User(null, "Aluno", "aluno@lab.local", "aluno123", "USER");
+            User admin = new User(null, "Admin", "admin@lab.local", passwordEncoder.encode("admin123"), "ADMIN");
+            User admin2 = new User(null, "ADMGordo", "admgordo@lab.local", passwordEncoder.encode("gordo123"), "ADMIN");
+            User student = new User(null, "Aluno", "aluno@lab.local", passwordEncoder.encode("aluno123"), "USER");
             userRepository.save(admin);
+            userRepository.save(admin2);
             userRepository.save(student);
 
             Product p1 = new Product(null, "Notebook", "Notebook para testes em laboratório", new BigDecimal("3500.00"));

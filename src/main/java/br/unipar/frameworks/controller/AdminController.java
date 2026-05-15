@@ -2,10 +2,12 @@ package br.unipar.frameworks.controller;
 
 import br.unipar.frameworks.model.User;
 import br.unipar.frameworks.repository.UserRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@PreAuthorize("hasRole('ADMIN')")
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
