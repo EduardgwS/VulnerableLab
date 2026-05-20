@@ -16,7 +16,10 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
-public class FakeTokenFilter extends OncePerRequestFilter {
+public class JwtAuthFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private JwtService jwtService;
 
     @Autowired
     private UserRepository userRepository;
@@ -26,18 +29,24 @@ public class FakeTokenFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String token = request.getHeader("Authorization");
+        String header = request.getHeader("Authorization");
 
-        if (token != null && token.startsWith("TOKEN-")) {
-            String[] parts = token.split("-");
-            Long userId = Long.parseLong(parts[1]);
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
 
-            userRepository.findById(userId).ifPresent(user -> {
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                        user, null, List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
-                );
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            });
+            try {
+                Long userId = jwtService.extrairUserId(token);
+                String role = jwtService.extrairRole(token);
+
+                userRepository.findById(userId).ifPresent(user -> {
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                            user, null, List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                });
+
+            } catch (Exception e) {
+            }
         }
 
         filterChain.doFilter(request, response);

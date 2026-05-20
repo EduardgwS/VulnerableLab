@@ -1,5 +1,6 @@
 package br.unipar.frameworks.controller;
 
+import br.unipar.frameworks.JwtService;
 import br.unipar.frameworks.dto.LoginRequest;
 import br.unipar.frameworks.dto.RegisterRequest;
 import br.unipar.frameworks.dto.UserResponseDTO;
@@ -21,12 +22,16 @@ public class AuthController {
 
     private final UserRepository userRepository;
 
-    public AuthController(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final JwtService jwtService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    public AuthController(UserRepository userRepository,
+                          JwtService jwtService,
+                          BCryptPasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> register(@RequestBody RegisterRequest request) {
@@ -44,7 +49,7 @@ public class AuthController {
                 .filter(user -> passwordEncoder.matches(request.password(), user.getPassword()))
                 .<ResponseEntity<?>>map(user -> ResponseEntity.ok(Map.of(
                         "message", "Login realizado para laboratório",
-                        "fakeToken", "TOKEN-" + user.getId() + "-" + user.getRole(),
+                        "token", jwtService.gerarToken(user.getId(), user.getRole()),
                         "user", UserResponseDTO.from(user)
                 )))
                 .orElseGet(() -> ResponseEntity.status(401).body(Map.of(
