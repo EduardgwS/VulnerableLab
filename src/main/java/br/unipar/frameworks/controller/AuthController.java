@@ -6,6 +6,7 @@ import br.unipar.frameworks.dto.RegisterRequest;
 import br.unipar.frameworks.dto.UserResponseDTO;
 import br.unipar.frameworks.model.User;
 import br.unipar.frameworks.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody RegisterRequest request) {
         User user = new User();
         user.setName(request.name());
         user.setEmail(request.email());
@@ -44,7 +45,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         return userRepository.findByEmail(request.email())
                 .filter(user -> passwordEncoder.matches(request.password(), user.getPassword()))
                 .<ResponseEntity<?>>map(user -> ResponseEntity.ok(Map.of(

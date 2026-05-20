@@ -5,6 +5,7 @@ import br.unipar.frameworks.model.Comment;
 import br.unipar.frameworks.model.Product;
 import br.unipar.frameworks.repository.CommentRepository;
 import br.unipar.frameworks.repository.ProductRepository;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public class CommentController {
     }
 
     @PostMapping
-    public Comment create(@RequestBody CommentRequest request) {
+    public Comment create(@Valid @RequestBody CommentRequest request) {
         Product product = productRepository.findById(request.productId()).orElseThrow();
         Comment comment = new Comment();
         comment.setText(request.text());
