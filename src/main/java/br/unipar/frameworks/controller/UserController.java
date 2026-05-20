@@ -31,14 +31,9 @@ public class UserController {
         return userRepository.findById(id).orElseThrow();
     }
 
-    @GetMapping("/search-safe")
+    @GetMapping("/search") //Apenas eliminado a outra pesquisa, e renomeado para pesquisa padrão
     public List<User> safeSearch(@RequestParam String term) {
         return userRepository.safeSearchByName(term);
     }
 
-    @GetMapping("/search-unsafe")
-    public List<User> unsafeSearch(@RequestParam String term) {
-        String jpql = "select u from User u where lower(u.name) like lower('%" + term + "%')";
-        return entityManager.createQuery(jpql, User.class).getResultList();
-    }
 }
