@@ -5,6 +5,10 @@ import br.unipar.frameworks.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 
 import java.util.List;
 
@@ -22,8 +26,14 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> listUsers() {
-        return userRepository.findAll();
+    public Page<User> listUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return userRepository.findAll(pageable);
     }
 
     @GetMapping("/{id}")
